@@ -8,10 +8,29 @@ locals {
   auto_scale_launch_template_name = "sonar-autoscale-launch-template"
   launch_template_ec2_name        = "sonar-asg-ec2"
 }
+
+variable "us_east_region" {
+    description = "Primary Region"
+    type = string
+    default = "us-east-1"
+}
+
+variable "us_west_region" {
+    description = "Backup Region"
+    type = string
+    default = "us-west-1"
+}
+
 variable "vpc_cidr" {
   description  = "VPC cidr"
   type         = string
-  default      = "10.0.0.0/16"
+  default      = "10.1.0.0/16"
+
+}
+variable "failover_vpc_cidr" {
+  description  = "Failover VPC cidr"
+  type         = string
+  default      = "10.1.0.0/16"
 }
 
 variable "public_subnet_cidrs" {
@@ -20,16 +39,27 @@ variable "public_subnet_cidrs" {
   default     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
 }
 
-variable "private_subnet_cidrs" {
+variable "failover_public_subnet_cidrs" {
+  description = "Public Subnet CIDR values"
+  type        = list(string)
+  default     = ["10.1.1.0/24", "10.1.2.0/24", "10.1.3.0/24"]
+}
+variable "failover_private_subnet_cidrs" {
   description = "Private Subnet CIDR values"
   type        = list(string)
-  default     = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
+  default     = ["10.1.4.0/24", "10.1.5.0/24", "10.1.6.0/24"]
 }
 
 variable "a_zones" {
   description = "Availability Zones"
   type    = list(string)
   default = ["us-east-1a", "us-east-1b", "us-east-1c"]
+}
+
+variable "failover_a_zones" {
+  description = "Availability Zones"
+  type    = list(string)
+  default = ["us-west-1a", "us-west-1b", "us-west-1c"]
 }
 
 variable "ami" {

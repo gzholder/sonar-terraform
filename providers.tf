@@ -8,5 +8,10 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-1"
+  region = var.us_east_region
+}
+
+provider "aws" {
+  alias  = "failove-region"
+  region = var.us_west_region
 }
