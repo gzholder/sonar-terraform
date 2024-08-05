@@ -1,9 +1,12 @@
 locals {
   internet_gateway_name           = "sonar-internet-gateway"
+  public_route_table_name         = "sonar-public-route-table"
+  private_route_table_name        = "sonar-private-route-table"
+  nat_gateway_name                = "sonar-nat-gateway"
   alb_security_group_name         = "sonar-web-alb-sg"
   auto_scale_sg_name              = "sonar-web-alb-autoscaling-sg"
   auto_scale_launch_template_name = "sonar-autoscale-launch-template"
-  launch_template_ec2_name        = "sonar_asg_ec2"
+  launch_template_ec2_name        = "sonar-asg-ec2"
 }
 variable "vpc_cidr" {
   description  = "VPC cidr"

@@ -30,9 +30,9 @@ resource "aws_subnet" "public_subnets" {
 }
 
 resource "aws_subnet" "private_subnets" {
-  count                   = length(var.public_subnet_cidrs)
+  count                   = length(var.private_subnet_cidrs)
   vpc_id                  = aws_vpc.sonar_vpc.id
-# cidr_block              = element(var.public_subnet_cidrs, count.index)
+# cidr_block              = element(var.private_subnet_cidrs, count.index)
   cidr_block              = var.private_subnet_cidrs[count.index]
   availability_zone       = var.a_zones[count.index]
 
@@ -41,26 +41,8 @@ resource "aws_subnet" "private_subnets" {
   }
 }
 
-resource "aws_eip" "elastic_ip" {
-  tags = {
-    Name = "sonar_elastic_ip"
-  }
-}
 
-resource "aws_nat_gateway" "nat_gateway" {
-  allocation_id     = aws_eip.elastic_ip.id
-  connectivity_type = "public"
-  subnet_id         = aws_subnet.public_subnets[0].id
-
-  tags = {
-    Name = "sonar_nat_gateway"
-  }
-
-  depends_on = [aws_internet_gateway.internet_gateway]
-}
-
-
-# Create route table
+# Create public route table
 resource "aws_route_table" "public_route_table" {
   vpc_id = aws_vpc.sonar_vpc.id
 
@@ -70,8 +52,42 @@ resource "aws_route_table" "public_route_table" {
   }
 
   tags = {
-    Name = "Public Route Table"
+    Name = local.public_route_table_name
   }
+}
+
+# Create EIP for Nat Gateway
+resource "aws_eip" "elastic_ip" {
+  tags = {
+    Name = "sonar_elastic_ip"
+  }
+}
+
+# Setup NAT with the EIP
+resource "aws_nat_gateway" "nat_gateway" {
+  allocation_id     = aws_eip.elastic_ip.id
+  connectivity_type = "public"
+  subnet_id         = aws_subnet.public_subnets[0].id
+
+  tags = {
+    Name = local.nat_gateway_name
+  }
+
+  depends_on = [aws_internet_gateway.internet_gateway]
+}
+
+# Create private route table
+resource "aws_route_table" "private_route_table" {
+  vpc_id = aws_vpc.sonar_vpc.id
+
+    route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.nat_gateway.id
+  }
+
+   tags = {
+     Name = local.private_route_table_name
+    }
 }
 
 # Associate Route Table
@@ -82,8 +98,8 @@ resource "aws_route_table_association" "public_subnet_association" {
 }
 
 resource "aws_route_table_association" "private_subnet_association" {
-  count          = length(var.public_subnet_cidrs)
+  count          = length(var.private_subnet_cidrs)
   subnet_id      = aws_subnet.private_subnets[count.index].id
-  route_table_id = aws_route_table.public_route_table.id
+  route_table_id = aws_route_table.private_route_table.id
 }
 
