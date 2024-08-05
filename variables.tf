@@ -61,3 +61,8 @@ variable "min_size" {
   default       = 1
 }
 
+variable "s3_bucket_name" {
+  description   = "Bucket name for S3"
+  type          = list(string)
+  default       = ["basic-bucket-20", "basic-bucket-30"]
+}

@@ -38,14 +38,6 @@ resource "aws_security_group" "auto_scale_sg" {
     protocol        = "tcp"
     security_groups = [aws_security_group.sonar_alb_sg.id]
   }
- 
-  ingress {
-    description     = "SSh from me"
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    cidr_blocks     = ["0.0.0.0/0"]
-  }
 
   egress {
     from_port       = 0
