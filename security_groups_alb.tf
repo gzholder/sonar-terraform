@@ -1,5 +1,4 @@
 # ALB Security Group Setup
-
 resource "aws_security_group" "sonar_alb_sg" {
   name         = local.alb_security_group_name
   description  = "ALB SG"
